@@ -37,7 +37,7 @@ func (bd BaiduSMS) sendRequest(method string, path string, body string) (s Succe
 	} else {
 		host = "sms.bj.baidubce.com"
 	}
-	targetURL := "http://" + host + path
+	targetURL := fmt.Sprintf("https://%s%s", host, path)
 	req, err := http.NewRequest(method, targetURL, strings.NewReader(body))
 	req.Header.Add("User-Agent", fmt.Sprintf("bce-sdk-go/%s/%s/%s", "1.0.0", "linux", "0.12.6"))
 	req.Header.Add("Host", host)
