@@ -28,6 +28,11 @@ type SuccessResponse struct {
 	RequestID string `json:"requestId"`
 }
 
+var (
+	// Version of baidusms
+	Version = "1.0.2"
+)
+
 func (bd BaiduSMS) sendRequest(method string, path string, body string) (s SuccessResponse, err error) {
 	now := time.Now()
 	auth := auth{bd.AccessKey, bd.SecretKey}
@@ -39,7 +44,7 @@ func (bd BaiduSMS) sendRequest(method string, path string, body string) (s Succe
 	}
 	targetURL := fmt.Sprintf("https://%s%s", host, path)
 	req, err := http.NewRequest(method, targetURL, strings.NewReader(body))
-	req.Header.Add("User-Agent", fmt.Sprintf("bce-sdk-go/%s/%s/%s", "1.0.0", "linux", "0.12.6"))
+	req.Header.Add("User-Agent", fmt.Sprintf("bce-sdk-go/%s", Version))
 	req.Header.Add("Host", host)
 	req.Header.Add("Connection", "close")
 	req.Header.Add("Content-Type", "application/json")
