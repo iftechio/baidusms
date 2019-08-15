@@ -30,7 +30,7 @@ type SuccessResponse struct {
 
 var (
 	// Version of baidusms
-	Version = "1.0.2"
+	Version = "1.0.3"
 )
 
 func (bd BaiduSMS) sendRequest(method string, path string, body string) (s SuccessResponse, err error) {
@@ -70,6 +70,10 @@ func (bd BaiduSMS) sendRequest(method string, path string, body string) (s Succe
 		err = json.Unmarshal(bodyBytes, &s)
 		if err != nil {
 			return
+		}
+		if s.Code != "1000" {
+			// only 1000 is correct
+			err = fmt.Errorf("Baidu SMS API error, code: %s, message: %s, requestID: %s", s.Code, s.Message, s.RequestID)
 		}
 		return
 	}
