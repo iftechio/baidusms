@@ -28,12 +28,25 @@ type SuccessResponse struct {
 	RequestID string `json:"requestId"`
 }
 
+// ErrSendFail is fail body of baidu response
+type ErrSendFail struct {
+	HTTPCode  int
+	APICode   string
+	Message   string
+	RequestID string
+}
+
+func (e ErrSendFail) Error() string {
+	return fmt.Sprintf("Baidu SMS API error, httpcode: %d, code: %s, message: %s, requestID: %s",
+		e.HTTPCode, e.APICode, e.Message, e.RequestID)
+}
+
 var (
 	// Version of baidusms
-	Version = "1.0.3"
+	Version = "2.0.0"
 )
 
-func (bd BaiduSMS) sendRequest(method string, path string, body string) (s SuccessResponse, err error) {
+func (bd BaiduSMS) sendRequest(method string, path string, body string) (*SuccessResponse, error) {
 	now := time.Now()
 	auth := auth{bd.AccessKey, bd.SecretKey}
 	var host string
@@ -57,28 +70,35 @@ func (bd BaiduSMS) sendRequest(method string, path string, body string) (s Succe
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return
+		return nil, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusOK {
 		bodyBytes, readErr := ioutil.ReadAll(resp.Body)
 		if readErr != nil {
-			err = readErr
-			return
+			return nil, readErr
 		}
+		var s SuccessResponse
 		err = json.Unmarshal(bodyBytes, &s)
 		if err != nil {
-			return
+			return nil, err
 		}
 		if s.Code != "1000" {
 			// only 1000 is correct
-			err = fmt.Errorf("Baidu SMS API error, code: %s, message: %s, requestID: %s", s.Code, s.Message, s.RequestID)
+			return nil, ErrSendFail{
+				HTTPCode:  resp.StatusCode,
+				APICode:   s.Code,
+				Message:   s.Message,
+				RequestID: s.RequestID,
+			}
 		}
-		return
+		return &s, nil
 	}
-	err = fmt.Errorf("Request SMS error, code: %d", resp.StatusCode)
-	return
+	err = fmt.Errorf("request SMS error, code: %d", resp.StatusCode)
+	return nil, ErrSendFail{
+		HTTPCode: resp.StatusCode,
+	}
 }
 
 type requestBody struct {
@@ -89,9 +109,12 @@ type requestBody struct {
 }
 
 // SendSMSCode will call HTTP request to Baidu API to send a sms
-func (bd BaiduSMS) SendSMSCode(invokeID string, mobilePhoneNumber string, templateCode string, contentVar map[string]string) (s SuccessResponse, err error) {
+func (bd BaiduSMS) SendSMSCode(invokeID string, mobilePhoneNumber string, templateCode string, contentVar map[string]string) (*SuccessResponse, error) {
 	path := "/bce/v2/message"
 	body := requestBody{invokeID, mobilePhoneNumber, templateCode, contentVar}
 	bodyStr, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
 	return bd.sendRequest("POST", path, string(bodyStr))
 }

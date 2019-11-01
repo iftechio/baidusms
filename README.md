@@ -2,6 +2,8 @@
 
 `baidusms` package provides Go support for Baidu SMS API.
 
+This Project is non-official.
+
 The document of Baidu SMS API is [here](https://cloud.baidu.com/doc/SMS/s/3jwvxrwjx)
 
 The document of the generation of `Authorization` header is [here](https://cloud.baidu.com/doc/Reference/s/njwvz1yfu)

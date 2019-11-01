@@ -1,0 +1,6 @@
+# Changelog
+
+## 2.0.0
+
+1. [BREAKING] Return type of SendSMSCode changes to pointer *SuccessResponse
+2. Use custom error struct instead of plain string error.
