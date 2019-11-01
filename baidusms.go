@@ -43,7 +43,7 @@ func (e ErrSendFail) Error() string {
 
 var (
 	// Version of baidusms
-	Version = "2.0.0"
+	Version = "2.0.1"
 )
 
 func (bd BaiduSMS) sendRequest(method string, path string, body string) (*SuccessResponse, error) {
