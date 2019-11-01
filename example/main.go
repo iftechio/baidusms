@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/iftechio/baidusms"
+	"github.com/iftechio/baidusms/v2"
 )
 
 func main() {
