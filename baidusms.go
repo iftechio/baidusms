@@ -36,14 +36,14 @@ type ErrSendFail struct {
 	RequestID string
 }
 
-func (e ErrSendFail) Error() string {
+func (e *ErrSendFail) Error() string {
 	return fmt.Sprintf("Baidu SMS API error, httpcode: %d, code: %s, message: %s, requestID: %s",
 		e.HTTPCode, e.APICode, e.Message, e.RequestID)
 }
 
 var (
 	// Version of baidusms
-	Version = "2.0.1"
+	Version = "2.0.2"
 )
 
 func (bd BaiduSMS) sendRequest(method string, path string, body string) (*SuccessResponse, error) {
@@ -86,7 +86,7 @@ func (bd BaiduSMS) sendRequest(method string, path string, body string) (*Succes
 		}
 		if s.Code != "1000" {
 			// only 1000 is correct
-			return nil, ErrSendFail{
+			return nil, &ErrSendFail{
 				HTTPCode:  resp.StatusCode,
 				APICode:   s.Code,
 				Message:   s.Message,
@@ -95,8 +95,7 @@ func (bd BaiduSMS) sendRequest(method string, path string, body string) (*Succes
 		}
 		return &s, nil
 	}
-	err = fmt.Errorf("request SMS error, code: %d", resp.StatusCode)
-	return nil, ErrSendFail{
+	return nil, &ErrSendFail{
 		HTTPCode: resp.StatusCode,
 	}
 }
