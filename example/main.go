@@ -15,7 +15,7 @@ func main() {
 	}
 	// content var is related your sms template
 	// we use example template "Your SMS code is ${code}, expires in ${hour} hours"
-	// so contentVAr should contain code and hour
+	// so contentVar should contain code and hour
 	contentVar := map[string]string{
 		"code": "1234",
 		"hour": "2",

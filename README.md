@@ -26,17 +26,15 @@ func main() {
 		SecretKey: "YOUR_SECRET_KEY",
 		Region:    "bj",
 	}
-	// content var is related your sms template
-	// we use example template "Your SMS code is ${code}, expires in ${hour} hours"
-	// so contentVAr should contain code and hour
+	// example template "Your SMS code is ${code}, expires in ${hour} hours"
 	contentVar := map[string]string{
 		"code": "1234",
 		"hour": "2",
 	}
 	resp, err := sms.SendSMSCode("YOUR_INVOKE_ID", "17612233344", "YOUR_TEMPLATE_CODE", contentVar)
 	if err != nil {
-    var sendError *baidusms.ErrSendFail
-    // go 1.13
+		var sendError *baidusms.ErrSendFail
+		// go 1.13
 		if errors.As(err, &sendError) {
 			switch sendError.APICode {
 			case "4621":
