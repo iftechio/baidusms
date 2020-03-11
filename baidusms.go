@@ -43,7 +43,7 @@ func (e *ErrSendFail) Error() string {
 
 var (
 	// Version of baidusms
-	Version = "2.0.2"
+	Version = "2.0.3"
 )
 
 func (bd BaiduSMS) sendRequest(method string, path string, body string) (*SuccessResponse, error) {
@@ -67,7 +67,9 @@ func (bd BaiduSMS) sendRequest(method string, path string, body string) (*Succes
 	req.Header.Add("x-bce-content-sha256", hex.EncodeToString(sum[:]))
 	headers := req.Header
 	req.Header.Add("Authorization", auth.generateAuthorization(method, path, headers, url.Values{}, now))
-	client := &http.Client{}
+	client := &http.Client{
+		Timeout: 10 * time.Second,
+	}
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err

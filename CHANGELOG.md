@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.0.3
+1. Add timeout
+
 ## 2.0.2
 
 1. Custom error in return value use pointer.
