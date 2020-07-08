@@ -107,22 +107,22 @@ func (bd BaiduSMS) sendRequest(method string, path string, body string) (*Succes
 }
 
 type requestBody struct {
-	SignatureID  string            `json:"signatureId"`
-	PhoneNumber  string            `json:"phoneNumber"`
-	TemplateCode string            `json:"templateCode"`
-	ContentVar   map[string]string `json:"contentVar"`
+	SignatureID string            `json:"signatureId"`
+	Mobile      string            `json:"mobile"`
+	Template    string            `json:"template"`
+	ContentVar  map[string]string `json:"contentVar"`
 }
 
 // SendSMSCode will call HTTP request to Baidu API to send a sms
-// phoneNumber should be array of E.164 phoneNumber
+// mobile should be array (length limited in 1-200) of E.164 phoneNumber
 func (bd BaiduSMS) SendSMSCode(
-	phoneNumber []string,
+	mobile []string,
 	template string,
 	signatureID string,
 	contentVar map[string]string,
 ) (*SuccessResponse, error) {
 	path := "/api/v3/sendSms"
-	body := requestBody{signatureID, strings.Join(phoneNumber, ","), template, contentVar}
+	body := requestBody{signatureID, strings.Join(mobile, ","), template, contentVar}
 	bodyStr, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
