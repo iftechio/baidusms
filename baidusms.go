@@ -13,6 +13,14 @@ import (
 	"time"
 )
 
+type Region = string
+
+const (
+	_        Region = ""
+	RegionBJ        = "bj"
+	RegionGZ        = "gz"
+)
+
 // BaiduSMS is config of sms service. AccessKey, SecretKey, Region should be provided
 // Region is one of "bj" and "gz"
 type BaiduSMS struct {
