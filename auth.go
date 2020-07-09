@@ -57,7 +57,7 @@ func uriCanonicalization(path string) string {
 }
 
 func queryStringCanonicalization(query url.Values) string {
-	queryPatternArray := []string{}
+	var queryPatternArray []string
 	for k, values := range query {
 		if strings.ToLower(k) == "authorization" {
 			continue
@@ -76,8 +76,8 @@ func queryStringCanonicalization(query url.Values) string {
 
 func headersCanonicalization(headers http.Header) (string, string) {
 	headersToSign := map[string]bool{"host": true, "content-md5": true, "content-length": true, "content-type": true}
-	canonicalHeaders := []string{}
-	signedHeaders := []string{}
+	var canonicalHeaders []string
+	var signedHeaders []string
 	for k, values := range headers {
 		k = strings.ToLower(k)
 		if headersToSign[k] || strings.HasPrefix(k, "x-bce-") {

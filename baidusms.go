@@ -13,6 +13,14 @@ import (
 	"time"
 )
 
+type Region = string
+
+const (
+	_        Region = ""
+	RegionBJ        = "bj"
+	RegionGZ        = "gz"
+)
+
 // BaiduSMS is config of sms service. AccessKey, SecretKey, Region should be provided
 // Region is one of "bj" and "gz"
 type BaiduSMS struct {
@@ -37,13 +45,17 @@ type ErrSendFail struct {
 }
 
 func (e *ErrSendFail) Error() string {
-	return fmt.Sprintf("Baidu SMS API error, httpcode: %d, code: %s, message: %s, requestID: %s",
-		e.HTTPCode, e.APICode, e.Message, e.RequestID)
+	return fmt.Sprintf(
+		"Baidu SMS API error, httpcode: %d, code: %s, message: %s, requestID: %s",
+		e.HTTPCode, e.APICode, e.Message, e.RequestID,
+	)
 }
 
-var (
+const (
 	// Version of baidusms
-	Version = "2.0.3"
+	Version = "3.0.0"
+	gzHost  = "smsv3.gz.baidubce.com"
+	bjHost  = "smsv3.bj.baidubce.com"
 )
 
 func (bd BaiduSMS) sendRequest(method string, path string, body string) (*SuccessResponse, error) {
@@ -51,9 +63,9 @@ func (bd BaiduSMS) sendRequest(method string, path string, body string) (*Succes
 	auth := auth{bd.AccessKey, bd.SecretKey}
 	var host string
 	if strings.ToLower(bd.Region) == "gz" {
-		host = "sms.gz.baidubce.com"
+		host = gzHost
 	} else {
-		host = "sms.bj.baidubce.com"
+		host = bjHost
 	}
 	targetURL := fmt.Sprintf("https://%s%s", host, path)
 	req, err := http.NewRequest(method, targetURL, strings.NewReader(body))
@@ -103,16 +115,22 @@ func (bd BaiduSMS) sendRequest(method string, path string, body string) (*Succes
 }
 
 type requestBody struct {
-	InvokeID     string            `json:"invokeId"`
-	PhoneNumber  string            `json:"phoneNumber"`
-	TemplateCode string            `json:"templateCode"`
-	ContentVar   map[string]string `json:"contentVar"`
+	SignatureID string            `json:"signatureId"`
+	Mobile      string            `json:"mobile"`
+	Template    string            `json:"template"`
+	ContentVar  map[string]string `json:"contentVar"`
 }
 
 // SendSMSCode will call HTTP request to Baidu API to send a sms
-func (bd BaiduSMS) SendSMSCode(invokeID string, mobilePhoneNumber string, templateCode string, contentVar map[string]string) (*SuccessResponse, error) {
-	path := "/bce/v2/message"
-	body := requestBody{invokeID, mobilePhoneNumber, templateCode, contentVar}
+// mobile should be array (length limited in 1-200) of E.164 phoneNumber
+func (bd BaiduSMS) SendSMSCode(
+	mobile []string,
+	template string,
+	signatureID string,
+	contentVar map[string]string,
+) (*SuccessResponse, error) {
+	path := "/api/v3/sendSms"
+	body := requestBody{signatureID, strings.Join(mobile, ","), template, contentVar}
 	bodyStr, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
