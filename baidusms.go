@@ -26,7 +26,7 @@ const (
 type BaiduSMS struct {
 	AccessKey string
 	SecretKey string
-	Region    string
+	Region    Region
 }
 
 // SuccessResponse is success body of baidu response
@@ -62,7 +62,7 @@ func (bd BaiduSMS) sendRequest(method string, path string, body string) (*Succes
 	now := time.Now()
 	auth := auth{bd.AccessKey, bd.SecretKey}
 	var host string
-	if strings.ToLower(bd.Region) == "gz" {
+	if strings.ToLower(bd.Region) == RegionGZ {
 		host = gzHost
 	} else {
 		host = bjHost
